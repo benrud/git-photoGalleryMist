@@ -1,7 +1,3 @@
-// Groq API configuration
-const GROQ_API_KEY = ''; // Add your Groq API key here
-const GROQ_API_URL = 'https://api.groq.com/openai/v1/chat/completions';
-
 // Get photo ID from filename (e.g., photo1.html -> 1)
 const getPhotoId = () => {
     const path = window.location.pathname;
@@ -10,41 +6,23 @@ const getPhotoId = () => {
     return match ? parseInt(match[1]) : null;
 };
 
-// Fetch AI-generated description from Groq
+// Fetch the AI-generated description through the server.
 async function fetchAIDescription(title, imageSrc) {
-    if (!GROQ_API_KEY) {
-        console.error('Groq API key not set');
-        return 'AI description: Please add your Groq API key in photo-script.js';
-    }
-
-    const prompt = `Describe the following photo in 2-3 sentences. The photo title is: "${title}". Be creative and vivid.`;
-
     try {
-        const response = await fetch(GROQ_API_URL, {
+        const response = await fetch('/api/describe', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${GROQ_API_KEY}`
             },
-            body: JSON.stringify({
-                model: 'mixtral-8x7b-32768',
-                messages: [
-                    {
-                        role: 'user',
-                        content: prompt
-                    }
-                ],
-                max_tokens: 150,
-                temperature: 0.7
-            })
+            body: JSON.stringify({ title, imageSrc })
         });
 
+        const data = await response.json().catch(() => ({}));
         if (!response.ok) {
-            throw new Error(`Groq API error: ${response.status} ${response.statusText}`);
+            throw new Error(data.error || `Description service error: ${response.status}`);
         }
 
-        const data = await response.json();
-        return data.choices[0].message.content;
+        return data.description;
     } catch (error) {
         console.error('Error fetching AI description:', error);
         return 'Could not load AI description. Please try again later.';
