@@ -34,6 +34,9 @@ header h1 {
     overflow: hidden;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     transition: transform 0.3s ease;
+    text-decoration: none;
+    color: #333;
+    display: block;
 }
 
 .photo-card:hover {
@@ -64,4 +67,48 @@ header h1 {
     .gallery-grid {
         grid-template-columns: 1fr;
     }
+}
+
+/* Photo detail page styles */
+.back-link {
+    display: inline-block;
+    margin-bottom: 20px;
+    color: #333;
+    text-decoration: none;
+    font-size: 1.1rem;
+}
+
+.back-link:hover {
+    text-decoration: underline;
+}
+
+.photo-detail-container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.photo-large {
+    margin-bottom: 30px;
+    text-align: center;
+}
+
+.photo-large img {
+    max-width: 100%;
+    max-height: 600px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.photo-info {
+    background: white;
+    padding: 25px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.photo-info p {
+    font-size: 1.1rem;
+    line-height: 1.6;
+    color: #444;
 }
