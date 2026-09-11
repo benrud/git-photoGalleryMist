@@ -2,7 +2,7 @@
     "photos": [
         { "id": 1, "title": "American Football", "src": "images/r1c1.jpeg" },
         { "id": 2, "title": "American Football", "src": "images/r1c2.jpeg" },
-        { "id": 3, "title": "American Football", "src": "images/placeholder.svg" },
+        { "id": 3, "title": "American Football", "src": "images/r1c3.jpeg" },
         { "id": 4, "title": "Basketball", "src": "images/placeholder.svg" },
         { "id": 5, "title": "Basketball", "src": "images/placeholder.svg" },
         { "id": 6, "title": "Basketball", "src": "images/placeholder.svg" },
