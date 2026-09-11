@@ -1,13 +1,13 @@
 {
     "photos": [
-        { "id": 1, "title": "", "src": "" },
-        { "id": 2, "title": "", "src": "" },
-        { "id": 3, "title": "", "src": "" },
-        { "id": 4, "title": "", "src": "" },
-        { "id": 5, "title": "", "src": "" },
-        { "id": 6, "title": "", "src": "" },
-        { "id": 7, "title": "", "src": "" },
-        { "id": 8, "title": "", "src": "" },
-        { "id": 9, "title": "", "src": "" }
+        { "id": 1, "title": "American Football", "src": "images/r1c1.jpeg" },
+        { "id": 2, "title": "American Football", "src": "images/r1c2.jpeg" },
+        { "id": 3, "title": "American Football", "src": "images/r1c3.jpeg" },
+        { "id": 4, "title": "Basketball", "src": "images/r2c1.jpeg" },
+        { "id": 5, "title": "Basketball", "src": "images/r2c2.jpeg" },
+        { "id": 6, "title": "Basketball", "src": "images/r2c3.jpeg" },
+        { "id": 7, "title": "Soccer", "src": "images/r3c1.jpeg" },
+        { "id": 8, "title": "Soccer", "src": "images/r3c2.jpeg" },
+        { "id": 9, "title": "Soccer", "src": "images/r3c3.jpeg" }
     ]
 }
