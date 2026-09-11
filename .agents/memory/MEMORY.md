@@ -1,0 +1,1 @@
+- [Preview routing](preview-routing.md) — verify the user's exact public URL; local screenshots do not prove external port routing works.
