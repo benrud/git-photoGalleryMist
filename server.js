@@ -1,12 +1,14 @@
 const http = require('node:http');
 const fs = require('node:fs/promises');
 const path = require('node:path');
+const { readFileSync, writeFileSync, existsSync } = require('node:fs');
 
 const PORT = Number(process.env.PORT || 5000);
 const HOST = '0.0.0.0';
 const PUBLIC_ROOT = path.resolve(__dirname);
 const GROQ_URL = 'https://api.groq.com/openai/v1/chat/completions';
-const GROQ_MODEL = process.env.GROQ_MODEL || 'openai/gpt-oss-20b';
+const GROQ_MODEL = process.env.GROQ_MODEL || 'llava-1.5-7b';
+const DESCRIPTIONS_FILE = path.resolve(PUBLIC_ROOT, 'descriptions.json');
 
 const MIME_TYPES = {
     '.css': 'text/css; charset=utf-8',
@@ -25,6 +27,28 @@ function sendJson(response, status, body) {
         'Cache-Control': 'no-store',
     });
     response.end(JSON.stringify(body));
+}
+
+// Load saved descriptions from file
+function loadDescriptions() {
+    if (existsSync(DESCRIPTIONS_FILE)) {
+        try {
+            const data = readFileSync(DESCRIPTIONS_FILE, 'utf8');
+            return JSON.parse(data);
+        } catch (e) {
+            console.error('Error loading descriptions:', e.message);
+        }
+    }
+    return {};
+}
+
+// Save descriptions to file
+function saveDescriptions(descriptions) {
+    try {
+        writeFileSync(DESCRIPTIONS_FILE, JSON.stringify(descriptions, null, 2), 'utf8');
+    } catch (e) {
+        console.error('Error saving descriptions:', e.message);
+    }
 }
 
 async function readJsonBody(request) {
@@ -61,6 +85,8 @@ async function describePhoto(request, response) {
     }
 
     const title = typeof body.title === 'string' ? body.title.trim() : '';
+    const imageSrc = typeof body.imageSrc === 'string' ? body.imageSrc.trim() : '';
+    
     if (!title || title.length > 200) {
         sendJson(response, 400, {
             error: 'A photo title between 1 and 200 characters is required.',
@@ -68,7 +94,44 @@ async function describePhoto(request, response) {
         return;
     }
 
+    if (!imageSrc) {
+        sendJson(response, 400, {
+            error: 'An image source is required.',
+        });
+        return;
+    }
+
+    // Create a cache key based on the image source
+    const cacheKey = path.basename(imageSrc);
+    const descriptions = loadDescriptions();
+    
+    // Return cached description if available
+    if (descriptions[cacheKey]) {
+        sendJson(response, 200, { 
+            description: descriptions[cacheKey],
+            cached: true 
+        });
+        return;
+    }
+
     try {
+        // Read and encode the image
+        const imagePath = path.resolve(PUBLIC_ROOT, imageSrc.replace(/^\//, ''));
+        let imageBase64 = '';
+        
+        try {
+            const imageBuffer = await fs.readFile(imagePath);
+            imageBase64 = imageBuffer.toString('base64');
+        } catch (e) {
+            console.error('Could not read image:', e.message);
+            sendJson(response, 404, { error: 'Image file not found.' });
+            return;
+        }
+
+        // Determine image MIME type
+        const ext = path.extname(imagePath).toLowerCase();
+        const mimeType = ext === '.png' ? 'image/png' : 'image/jpeg';
+
         const groqResponse = await fetch(GROQ_URL, {
             method: 'POST',
             headers: {
@@ -77,11 +140,19 @@ async function describePhoto(request, response) {
             },
             body: JSON.stringify({
                 model: GROQ_MODEL,
-                reasoning_effort: 'low',
                 messages: [
                     {
                         role: 'user',
-                        content: `Describe the following photo in 2-3 sentences. The photo title is: "${title}". Be creative and vivid.`,
+                        content: [
+                            { 
+                                type: 'text', 
+                                text: `Describe this photo in 2-3 sentences. The photo title is: "${title}". Be creative and vivid.` 
+                            },
+                            { 
+                                type: 'image_url', 
+                                image_url: `data:${mimeType};base64,${imageBase64}` 
+                            }
+                        ]
                     },
                 ],
                 max_tokens: 300,
@@ -91,7 +162,7 @@ async function describePhoto(request, response) {
 
         const result = await groqResponse.json().catch(() => ({}));
         if (!groqResponse.ok) {
-            console.error('Groq API request failed:', groqResponse.status);
+            console.error('Groq API request failed:', groqResponse.status, result);
             sendJson(response, 502, {
                 error: 'The description service could not complete the request.',
             });
@@ -107,7 +178,16 @@ async function describePhoto(request, response) {
             return;
         }
 
-        sendJson(response, 200, { description: description.trim() });
+        const trimmedDescription = description.trim();
+        
+        // Save description to cache
+        descriptions[cacheKey] = trimmedDescription;
+        saveDescriptions(descriptions);
+
+        sendJson(response, 200, { 
+            description: trimmedDescription,
+            cached: false 
+        });
     } catch (error) {
         console.error('Groq API request error:', error.message);
         sendJson(response, 502, {
