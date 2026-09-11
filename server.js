@@ -7,7 +7,7 @@ const PORT = Number(process.env.PORT || 5000);
 const HOST = '0.0.0.0';
 const PUBLIC_ROOT = path.resolve(__dirname);
 const GROQ_URL = 'https://api.groq.com/openai/v1/chat/completions';
-const GROQ_MODEL = process.env.GROQ_MODEL || 'openai/gpt-oss-20b';
+const GROQ_MODEL = process.env.GROQ_MODEL || 'llava-1.5-7b';
 const DESCRIPTIONS_FILE = path.resolve(PUBLIC_ROOT, 'descriptions.json');
 
 const MIME_TYPES = {
@@ -101,7 +101,7 @@ async function describePhoto(request, response) {
         return;
     }
 
-    // Create a cache key based on the image source
+    // Create a cache key based on the image filename
     const cacheKey = path.basename(imageSrc);
     const descriptions = loadDescriptions();
     
@@ -115,6 +115,23 @@ async function describePhoto(request, response) {
     }
 
     try {
+        // Read and encode the image
+        const imagePath = path.resolve(PUBLIC_ROOT, imageSrc.replace(/^\//, ''));
+        let imageBase64 = '';
+        
+        try {
+            const imageBuffer = await fs.readFile(imagePath);
+            imageBase64 = imageBuffer.toString('base64');
+        } catch (e) {
+            console.error('Could not read image:', e.message);
+            sendJson(response, 404, { error: 'Image file not found.' });
+            return;
+        }
+
+        // Determine image MIME type
+        const ext = path.extname(imagePath).toLowerCase();
+        const mimeType = ext === '.png' ? 'image/png' : 'image/jpeg';
+
         const groqResponse = await fetch(GROQ_URL, {
             method: 'POST',
             headers: {
@@ -126,7 +143,16 @@ async function describePhoto(request, response) {
                 messages: [
                     {
                         role: 'user',
-                        content: `Write a creative, vivid description of a photo titled "${title}" in 2-3 sentences. Describe a plausible scene without claiming to have directly analyzed the image.`,
+                        content: [
+                            { 
+                                type: 'text', 
+                                text: `Describe this photo in 2-3 sentences. The photo title is: "${title}". Be creative and vivid.` 
+                            },
+                            { 
+                                type: 'image_url', 
+                                image_url: `data:${mimeType};base64,${imageBase64}` 
+                            }
+                        ]
                     },
                 ],
                 max_tokens: 300,
