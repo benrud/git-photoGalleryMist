@@ -1,1 +1,2 @@
 - [Preview routing](preview-routing.md) — verify the user's exact public URL; local screenshots do not prove external port routing works.
+- [Groq vision reasoning](groq-vision-reasoning.md) — hidden reasoning can yield empty content; disabling reasoning returned a clean multimodal answer.

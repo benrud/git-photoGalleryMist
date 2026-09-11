@@ -1,0 +1,26 @@
+Photo gallery server listening on 0.0.0.0:5000
+Groq API request failed: 400 {
+  error: {
+    message: "'messages.0' : for 'role:user' the following must be satisfied[('messages.0.content' : one of the following must be satisfied[('messages.0.content' : value must be a string) OR ('messages.0.content.1' : one of the following must be satisfied[('messages.0.content.1.type' : value is not one of the allowed values ['text']) OR ('messages.0.content.1.image_url' : value must be an object) OR ('messages.0.content.1.type' : value is not one of the allowed values ['document'])])])]",
+    type: 'invalid_request_error'
+  }
+}
+Groq API request failed: 400 {
+  error: {
+    message: "'messages.0' : for 'role:user' the following must be satisfied[('messages.0.content' : one of the following must be satisfied[('messages.0.content' : value must be a string) OR ('messages.0.content.1' : one of the following must be satisfied[('messages.0.content.1.type' : value is not one of the allowed values ['text']) OR ('messages.0.content.1.image_url' : value must be an object) OR ('messages.0.content.1.type' : value is not one of the allowed values ['document'])])])]",
+    type: 'invalid_request_error'
+  }
+}
+Groq API request failed: 400 {
+  error: {
+    message: "'messages.0' : for 'role:user' the following must be satisfied[('messages.0.content' : one of the following must be satisfied[('messages.0.content' : value must be a string) OR ('messages.0.content.1' : one of the following must be satisfied[('messages.0.content.1.type' : value is not one of the allowed values ['text']) OR ('messages.0.content.1.image_url' : value must be an object) OR ('messages.0.content.1.type' : value is not one of the allowed values ['document'])])])]",
+    type: 'invalid_request_error'
+  }
+}
+Groq API request failed: 400 {
+  error: {
+    message: "'messages.0' : for 'role:user' the following must be satisfied[('messages.0.content' : one of the following must be satisfied[('messages.0.content' : value must be a string) OR ('messages.0.content.1' : one of the following must be satisfied[('messages.0.content.1.type' : value is not one of the allowed values ['text']) OR ('messages.0.content.1.image_url' : value must be an object) OR ('messages.0.content.1.type' : value is not one of the allowed values ['document'])])])]",
+    type: 'invalid_request_error'
+  }
+}
+

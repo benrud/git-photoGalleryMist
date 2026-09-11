@@ -7,7 +7,7 @@ const PORT = Number(process.env.PORT || 5000);
 const HOST = '0.0.0.0';
 const PUBLIC_ROOT = path.resolve(__dirname);
 const GROQ_URL = 'https://api.groq.com/openai/v1/chat/completions';
-const GROQ_MODEL = process.env.GROQ_MODEL || 'llava-1.5-7b';
+const GROQ_VISION_MODEL = process.env.GROQ_VISION_MODEL || 'qwen/qwen3.8-27b';
 const DESCRIPTIONS_FILE = path.resolve(PUBLIC_ROOT, 'descriptions.json');
 
 const MIME_TYPES = {
@@ -101,8 +101,8 @@ async function describePhoto(request, response) {
         return;
     }
 
-    // Create a cache key based on the image filename
-    const cacheKey = path.basename(imageSrc);
+    // Version the cache so descriptions created without vision are not reused.
+    const cacheKey = `vision-v5:${path.basename(imageSrc)}`;
     const descriptions = loadDescriptions();
     
     // Return cached description if available
@@ -116,7 +116,14 @@ async function describePhoto(request, response) {
 
     try {
         // Read and encode the image
-        const imagePath = path.resolve(PUBLIC_ROOT, imageSrc.replace(/^\//, ''));
+        const imagesRoot = path.resolve(PUBLIC_ROOT, 'images');
+        const imagePath = path.resolve(PUBLIC_ROOT, imageSrc.replace(/^\/+/, ''));
+
+        if (!imagePath.startsWith(`${imagesRoot}${path.sep}`)) {
+            sendJson(response, 400, { error: 'The image source must be inside the images directory.' });
+            return;
+        }
+
         let imageBase64 = '';
         
         try {
@@ -130,7 +137,18 @@ async function describePhoto(request, response) {
 
         // Determine image MIME type
         const ext = path.extname(imagePath).toLowerCase();
-        const mimeType = ext === '.png' ? 'image/png' : 'image/jpeg';
+        const imageMimeTypes = {
+            '.jpeg': 'image/jpeg',
+            '.jpg': 'image/jpeg',
+            '.png': 'image/png',
+            '.webp': 'image/webp',
+        };
+        const mimeType = imageMimeTypes[ext];
+
+        if (!mimeType) {
+            sendJson(response, 400, { error: 'The image must be a JPEG, PNG, or WebP file.' });
+            return;
+        }
 
         const groqResponse = await fetch(GROQ_URL, {
             method: 'POST',
@@ -139,24 +157,27 @@ async function describePhoto(request, response) {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-                model: GROQ_MODEL,
+                model: GROQ_VISION_MODEL,
                 messages: [
                     {
                         role: 'user',
                         content: [
                             { 
                                 type: 'text', 
-                                text: `Describe this photo in 2-3 sentences. The photo title is: "${title}". Be creative and vivid.` 
+                                 text: `Visually inspect this single, continuous photograph and describe only what is clearly visible in exactly 2-3 sentences. Focus on the people, action, setting, uniforms, and colors. Avoid uncertain identities, jersey numbers, or events outside the frame. The gallery title is "${title}". Return only the description.`
                             },
                             { 
                                 type: 'image_url', 
-                                image_url: `data:${mimeType};base64,${imageBase64}` 
+                                 image_url: {
+                                     url: `data:${mimeType};base64,${imageBase64}`,
+                                 },
                             }
                         ]
                     },
                 ],
+                reasoning_effort: 'none',
                 max_tokens: 300,
-                temperature: 0.7,
+                temperature: 0.3,
             }),
         });
 
