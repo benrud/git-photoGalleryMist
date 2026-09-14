@@ -15,8 +15,61 @@
         <div class="photo-large">
             <img id="photo-image" src="" alt="Photo">
         </div>
-        <div class="photo-info">
-            <p id="photo-description">Loading description...</p>
+        <div class="photo-info" id="photo-info-card">
+            <div class="description-section" id="description-section">
+                <span class="section-label" id="section-label-current">Current Description</span>
+                <p id="photo-description">Loading description...</p>
+            </div>
+
+            <section class="regenerate-section" id="regenerate-section" aria-labelledby="regenerate-heading">
+                <h2 id="regenerate-heading" class="section-title">Regenerate Description</h2>
+                <form id="regenerate-form" class="regenerate-form">
+                    <div class="form-group" id="group-style">
+                        <label for="nudge-style" class="form-label" id="label-nudge-style">Style &amp; Tone</label>
+                        <select id="nudge-style" name="nudge-style" class="form-select">
+                            <option value="balanced">Standard &amp; Balanced</option>
+                            <option value="short">Short &amp; Punchy</option>
+                            <option value="detailed">Detailed &amp; Long</option>
+                            <option value="humorous">Funny &amp; Playful</option>
+                            <option value="serious">Serious &amp; Analytical</option>
+                            <option value="embellished">Embellished &amp; Dramatic</option>
+                            <option value="descriptive">Purely Descriptive &amp; Objective</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group" id="group-nudge">
+                        <div class="label-row" id="row-nudge-label">
+                            <label for="nudge-text" class="form-label" id="label-nudge-text">Custom Nudge (Optional)</label>
+                            <span id="char-counter" class="char-counter">0 / 100</span>
+                        </div>
+                        <input
+                            type="text"
+                            id="nudge-text"
+                            name="nudge-text"
+                            maxlength="100"
+                            class="form-input"
+                            placeholder="e.g. focus on the helmet decal, weather, or crowd..."
+                        />
+                    </div>
+
+                    <div class="form-actions" id="actions-regenerate">
+                        <button type="submit" id="regenerate-btn" class="btn-primary">
+                            <span class="btn-text" id="regenerate-btn-text">Regenerate Description</span>
+                        </button>
+                    </div>
+                    <div id="regenerate-status" class="status-message" aria-live="polite"></div>
+                </form>
+            </section>
+
+            <details class="history-accordion" id="history-accordion">
+                <summary class="history-summary" id="history-summary">
+                    <span class="summary-title" id="history-summary-title">Previous Descriptions</span>
+                    <span class="history-badge" id="history-count">0</span>
+                </summary>
+                <div class="history-list" id="history-list">
+                    <p class="history-empty" id="history-empty-msg">No previous descriptions yet.</p>
+                </div>
+            </details>
         </div>
     </main>
     <script src="photo-script.js"></script>

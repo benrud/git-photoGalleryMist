@@ -1,0 +1,6 @@
+{
+  "name": "Photo Gallery",
+  "description": "A photo gallery application with AI-generated photo descriptions",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
